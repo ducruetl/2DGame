@@ -53,24 +53,30 @@ public class Player extends Entity {
 
             if (keyHandler.upPressed) {
                 direction = "up";
-                if (worldY - speed + (gamePanel.tileSize / 2) >= 0 && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + (gamePanel.tileSize / 2)) / gamePanel.tileSize][(worldY - speed + (gamePanel.tileSize / 2)) / gamePanel.tileSize]).collision) {
+                if (worldY - speed + (gamePanel.tileSize / 2) >= 0 && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + 4 * gamePanel.scale) / gamePanel.tileSize][(worldY - speed + (gamePanel.tileSize / 2)) / gamePanel.tileSize]).collision && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize][(worldY - speed + (gamePanel.tileSize / 2)) / gamePanel.tileSize]).collision) {
                     worldY -= speed;
                 }
             }
 
             else if (keyHandler.downPressed) {
                 direction = "down";
-                worldY += speed;
+                if (worldY + speed + gamePanel.tileSize - gamePanel.scale < gamePanel.worldHeight && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + speed + gamePanel.tileSize - gamePanel.scale) / gamePanel.tileSize]).collision && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + speed + gamePanel.tileSize - gamePanel.scale) / gamePanel.tileSize]).collision) {
+                    worldY += speed;
+                }
             }
 
             else if (keyHandler.rightPressed) {
                 direction = "right";
-                worldX += speed;
+                if (worldX + speed + gamePanel.tileSize - 4 * gamePanel.scale < gamePanel.worldWidth && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + speed + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize]).collision) {
+                    worldX += speed;
+                }
             }
 
             else if (keyHandler.leftPressed) {
                 direction = "left";
-                worldX -= speed;
+                if (worldX - speed + 4 * gamePanel.scale >= 0 && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX - speed + 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize]).collision) {
+                    worldX -= speed;
+                }
             }
 
             if (frameCount >= 10) {

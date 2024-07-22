@@ -67,6 +67,9 @@ public class TileManager {
             tiles.add(new Tile());
             tiles.get(1).image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/tiles/wall_brick.png")));
             tiles.get(1).collision = true;
+            tiles.add(new Tile());
+            tiles.get(2).image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/tiles/water.png")));
+            tiles.get(2).collision = true;
 
         } catch (IOException e) {
             throw new RuntimeException(e);
