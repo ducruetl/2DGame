@@ -31,13 +31,15 @@ public class GamePanel extends JPanel implements Runnable {
     public TileManager tileManager = new TileManager(this);
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
-    public Player player = new Player(this, keyHandler);
+    MouseHandler mouseHandler = new MouseHandler();
+    public Player player = new Player(this, mouseHandler, keyHandler);
 
     public GamePanel() {
 
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
+        this.addMouseListener(mouseHandler);
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
 

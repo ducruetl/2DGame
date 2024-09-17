@@ -2,6 +2,7 @@ package entity;
 
 import com.application.GamePanel;
 import com.application.KeyHandler;
+import com.application.MouseHandler;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -12,11 +13,15 @@ import java.util.Objects;
 public class Player extends Entity {
 
     GamePanel gamePanel;
+    MouseHandler mouseHandler;
     KeyHandler keyHandler;
     public final int screenX, screenY;
+    boolean upBlocked, downBlocked, rightBlocked, leftBlocked;
+    int targetX, targetY;
 
-    public Player (GamePanel gamePanel, KeyHandler keyHandler) {
+    public Player (GamePanel gamePanel, MouseHandler mouseHandler, KeyHandler keyHandler) {
         this.gamePanel = gamePanel;
+        this.mouseHandler = mouseHandler;
         this.keyHandler = keyHandler;
         getPlayerImage();
         screenX = (gamePanel.screenWidth / 2) - (gamePanel.tileSize / 2);
@@ -48,35 +53,62 @@ public class Player extends Entity {
 
     public void update() {
 
-        if (keyHandler.upPressed || keyHandler.downPressed || keyHandler.rightPressed || keyHandler.leftPressed) {
+        if (keyHandler.upPressed || keyHandler.downPressed || keyHandler.rightPressed || keyHandler.leftPressed || mouseHandler.mouseClicked) {
             frameCount ++;
+            if (keyHandler.upPressed || keyHandler.downPressed || keyHandler.rightPressed || keyHandler.leftPressed) {
+                unblockMovement();
+                mouseHandler.mouseClicked = false;
+            }
+            if (mouseHandler.initialize) {
+                targetX = worldX - screenX + mouseHandler.mouseX - gamePanel.tileSize/2;
+                targetY = worldY - screenY + mouseHandler.mouseY - gamePanel.tileSize/2;
+                unblockMovement();
+                mouseHandler.initialize = false;
+            }
 
-            if (keyHandler.upPressed) {
+            if (keyHandler.upPressed || mouseHandler.mouseClicked && worldY - targetY >= speed && !upBlocked) {
                 direction = "up";
                 if (worldY - speed + (gamePanel.tileSize / 2) >= 0 && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + 4 * gamePanel.scale) / gamePanel.tileSize][(worldY - speed + (gamePanel.tileSize / 2)) / gamePanel.tileSize]).collision && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize][(worldY - speed + (gamePanel.tileSize / 2)) / gamePanel.tileSize]).collision) {
                     worldY -= speed;
+                } else {
+                    unblockMovement();
+                    upBlocked = true;
                 }
             }
 
-            else if (keyHandler.downPressed) {
+            else if (keyHandler.downPressed || mouseHandler.mouseClicked && targetY - worldY >= speed && !downBlocked) {
                 direction = "down";
                 if (worldY + speed + gamePanel.tileSize - gamePanel.scale < gamePanel.worldHeight && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + speed + gamePanel.tileSize - gamePanel.scale) / gamePanel.tileSize]).collision && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + speed + gamePanel.tileSize - gamePanel.scale) / gamePanel.tileSize]).collision) {
                     worldY += speed;
+                } else {
+                    unblockMovement();
+                    downBlocked = true;
                 }
             }
 
-            else if (keyHandler.rightPressed) {
+            else if (keyHandler.rightPressed || mouseHandler.mouseClicked && targetX - worldX >= speed && !rightBlocked) {
                 direction = "right";
                 if (worldX + speed + gamePanel.tileSize - 4 * gamePanel.scale < gamePanel.worldWidth && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + speed + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize]).collision) {
                     worldX += speed;
+                } else {
+                    unblockMovement();
+                    rightBlocked = true;
                 }
             }
 
-            else if (keyHandler.leftPressed) {
+            else if (keyHandler.leftPressed || worldX - targetX >= speed && !leftBlocked) {
                 direction = "left";
                 if (worldX - speed + 4 * gamePanel.scale >= 0 && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX - speed + 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize]).collision) {
                     worldX -= speed;
+                } else {
+                    unblockMovement();
+                    leftBlocked = true;
                 }
+            }
+
+            if (mouseHandler.mouseClicked && worldX - targetX < speed  && targetX - worldX < speed && worldY - targetY < speed && targetY - worldY < speed) {
+                mouseHandler.mouseClicked = false;
+                unblockMovement();
             }
 
             if (frameCount >= 10) {
@@ -95,7 +127,6 @@ public class Player extends Entity {
             frameNum = 1;
             frameCount = 0;
         }
-
 
     }
 
@@ -120,7 +151,7 @@ public class Player extends Entity {
                     break;
                 default:
                     break;
-            };
+            }
 
         } else if (frameNum == 4) {
             switch (direction) {
@@ -138,7 +169,7 @@ public class Player extends Entity {
                     break;
                 default:
                     break;
-            };
+            }
         } else {
             switch (direction) {
                 case "up":
@@ -155,12 +186,19 @@ public class Player extends Entity {
                     break;
                 default:
                     break;
-            };
+            }
         }
 
         graphics2D.drawImage(image, screenX, screenY, gamePanel.tileSize, gamePanel.tileSize, null);
         graphics2D.dispose();
 
+    }
+
+    void unblockMovement() {
+        upBlocked = false;
+        downBlocked = false;
+        rightBlocked = false;
+        leftBlocked = false;
     }
 
 }
