@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.tools.Tool;
 import java.awt.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -71,7 +72,11 @@ public class GamePanel extends JPanel implements Runnable {
             lastTime = currentTime;
 
             if (delta > 1) {
-                update();
+                try {
+                    update();
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
                 repaint();
                 delta--;
                 fpsCount++;
@@ -86,7 +91,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     }
 
-    public void update() {
+    public void update() throws FileNotFoundException {
         player.update();
     }
 

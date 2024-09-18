@@ -1,5 +1,9 @@
 package com.application;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import pathfinding.Pathfinding;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -17,6 +21,7 @@ public class MouseHandler implements MouseListener {
         mouseClicked = true;
         initialize = true;
         System.out.println("X : " + mouseX + " Y : " + mouseY);
+
 
     }
 
