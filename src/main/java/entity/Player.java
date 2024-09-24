@@ -20,9 +20,8 @@ public class Player extends Entity {
     MouseHandler mouseHandler;
     KeyHandler keyHandler;
     public final int screenX, screenY;
-    int targetX, targetY;
+    int goalX, goalY, targetX, targetY, targetTile;
     int i;
-    boolean pathfind = false;
     ArrayList<TileNode> path;
 
     public Player (GamePanel gamePanel, MouseHandler mouseHandler, KeyHandler keyHandler) {
@@ -32,13 +31,13 @@ public class Player extends Entity {
         getPlayerImage();
         screenX = (gamePanel.screenWidth / 2) - (gamePanel.tileSize / 2);
         screenY = (gamePanel.screenHeight / 2) - (gamePanel.tileSize / 2);
-        worldX = (gamePanel.screenWidth / 2) - (gamePanel.tileSize / 2);
-        worldY = (gamePanel.screenHeight / 2) - (gamePanel.tileSize / 2);
+        worldX = 5 * gamePanel.tileSize;
+        worldY = 5 * gamePanel.tileSize;
         speed = 4;
         direction = "up";
     }
 
-    public void getPlayerImage() {
+    private void getPlayerImage() {
         try {
             up_idle = ImageIO.read(Objects.requireNonNull(getClass().getResource("/player/player_up_idle.png")));
             up1 = ImageIO.read(Objects.requireNonNull(getClass().getResource("/player/player_up_walk1.png")));
@@ -65,24 +64,38 @@ public class Player extends Entity {
                 mouseHandler.mouseClicked = false;
             }
             if (mouseHandler.initialize) {
-                targetX = (worldX - screenX + mouseHandler.mouseX) / gamePanel.tileSize;
-                targetY = (worldY - screenY + mouseHandler.mouseY) / gamePanel.tileSize;
-                i = 0;
-                TileNode goal = new TileNode(targetX, targetY, targetX/gamePanel.tileSize - worldX/gamePanel.tileSize, targetY/gamePanel.tileSize - worldY/gamePanel.tileSize, null);
-                path = (ArrayList<TileNode>) Pathfinding.pathfinding(new TileNode((int) (double) (worldX/gamePanel.tileSize), (int) (double) (worldY / gamePanel.tileSize), 0, Pathfinding.h(worldX/gamePanel.tileSize, worldY/gamePanel.tileSize, goal), null), goal);
-                mouseHandler.initialize = false;
-                pathfind = true;
+                goalX = (worldX - screenX + mouseHandler.mouseX) / gamePanel.tileSize;
+                goalY = (worldY - screenY + mouseHandler.mouseY) / gamePanel.tileSize;
+                if (goalX >= 0 && goalY >= 0) {
+                    targetTile = gamePanel.tileManager.mapTiles[goalX][goalY];
+                    if (!gamePanel.tileManager.tiles.get(targetTile).collision) {
+                        gamePanel.tileManager.tiles.get(3).image = gamePanel.tileManager.tiles.get(targetTile).image;
+                        gamePanel.tileManager.mapTiles[goalX][goalY] = 3;
+                        i = 0;
+                        TileNode goal = new TileNode(goalX, goalY, goalX / gamePanel.tileSize - worldX / gamePanel.tileSize, goalY / gamePanel.tileSize - worldY / gamePanel.tileSize, null);
+                        path = (ArrayList<TileNode>) Pathfinding.pathfinding(new TileNode((int) (double) (worldX / gamePanel.tileSize), (int) (double) (worldY / gamePanel.tileSize), 0, Pathfinding.h(worldX / gamePanel.tileSize, worldY / gamePanel.tileSize, goal), null), goal);
+                        mouseHandler.initialize = false;
+                        mouseHandler.pathfind = true;
+                    } else {
+                        mouseHandler.initialize = false;
+                        mouseHandler.mouseClicked = false;
+                    }
+                } else {
+                    mouseHandler.initialize = false;
+                    mouseHandler.mouseClicked = false;
+                }
             }
 
-            if (pathfind) {
-                targetX = path.get(i).getCol() * gamePanel.tileSize;
-                targetY = path.get(i).getRow() * gamePanel.tileSize;
+            if (mouseHandler.pathfind) {
+                targetY = path.get(i).getCol() * gamePanel.tileSize;
+                targetX = path.get(i).getRow() * gamePanel.tileSize;
                 if (mouseHandler.mouseClicked && worldX - targetX < speed  && targetX - worldX < speed && worldY - targetY < speed && targetY - worldY < speed) {
-                    if (!(i + 1 < path.size())) {
+                    if (!(i + 1 == path.size())) {
                         i++;
                     } else {
-                        pathfind = false;
+                        mouseHandler.pathfind = false;
                         mouseHandler.mouseClicked = false;
+                        gamePanel.tileManager.mapTiles[goalX][goalY] = targetTile;
                     }
                 }
             }
@@ -92,12 +105,20 @@ public class Player extends Entity {
                 if (worldY - speed + (gamePanel.tileSize / 2) >= 0 && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + 4 * gamePanel.scale) / gamePanel.tileSize][(worldY - speed + (gamePanel.tileSize / 2)) / gamePanel.tileSize]).collision && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize][(worldY - speed + (gamePanel.tileSize / 2)) / gamePanel.tileSize]).collision) {
                     worldY -= speed;
                 }
+                if (keyHandler.upPressed) {
+                    mouseHandler.pathfind = false;
+                    mouseHandler.mouseClicked = false;
+                }
             }
 
             else if (keyHandler.downPressed || mouseHandler.mouseClicked && targetY - worldY >= speed) {
                 direction = "down";
                 if (worldY + speed + gamePanel.tileSize - gamePanel.scale < gamePanel.worldHeight && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + speed + gamePanel.tileSize - gamePanel.scale) / gamePanel.tileSize]).collision && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + speed + gamePanel.tileSize - gamePanel.scale) / gamePanel.tileSize]).collision) {
                     worldY += speed;
+                }
+                if (keyHandler.downPressed) {
+                    mouseHandler.pathfind = false;
+                    mouseHandler.mouseClicked = false;
                 }
             }
 
@@ -106,12 +127,20 @@ public class Player extends Entity {
                 if (worldX + speed + gamePanel.tileSize - 4 * gamePanel.scale < gamePanel.worldWidth && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX + speed + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize]).collision) {
                     worldX += speed;
                 }
+                if (keyHandler.rightPressed) {
+                    mouseHandler.pathfind = false;
+                    mouseHandler.mouseClicked = false;
+                }
             }
 
             else if (keyHandler.leftPressed || worldX - targetX >= speed) {
                 direction = "left";
                 if (worldX - speed + 4 * gamePanel.scale >= 0 && !gamePanel.tileManager.tiles.get(gamePanel.tileManager.mapTiles[(worldX - speed + 4 * gamePanel.scale) / gamePanel.tileSize][(worldY + gamePanel.tileSize - 4 * gamePanel.scale) / gamePanel.tileSize]).collision) {
                     worldX -= speed;
+                }
+                if (keyHandler.leftPressed) {
+                    mouseHandler.pathfind = false;
+                    mouseHandler.mouseClicked = false;
                 }
             }
 

@@ -10,18 +10,19 @@ import java.awt.event.MouseListener;
 public class MouseHandler implements MouseListener {
 
     public int mouseX, mouseY;
-    public boolean mouseClicked = false, initialize = false;
+    public boolean mouseClicked = false, initialize = false, pathfind = false;
 
 
     @Override
     public void mouseClicked(MouseEvent e) {
 
-        mouseX = e.getX();
-        mouseY = e.getY();
-        mouseClicked = true;
-        initialize = true;
-        System.out.println("X : " + mouseX + " Y : " + mouseY);
-
+        if (!pathfind) {
+            mouseX = e.getX();
+            mouseY = e.getY();
+            mouseClicked = true;
+            initialize = true;
+            System.out.println("X : " + mouseX + " Y : " + mouseY);
+        }
 
     }
 

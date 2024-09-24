@@ -22,7 +22,7 @@ public static List<TileNode> pathfinding(TileNode start, TileNode goal) throws F
         mapLine = scanner.nextLine();
         mapLine = mapLine.replace(" ", "");
         for (int j = 0; j < mapLine.length(); j++) {
-            map[i][j] = getNumericValue(mapLine.charAt(j));
+            map[j][i] = getNumericValue(mapLine.charAt(j));
         }
         i++;
     }

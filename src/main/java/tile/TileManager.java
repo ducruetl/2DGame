@@ -70,6 +70,8 @@ public class TileManager {
             tiles.add(new Tile());
             tiles.get(2).image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/tiles/water.png")));
             tiles.get(2).collision = true;
+            tiles.add(new Tile());
+            tiles.get(3).image2 = ImageIO.read(Objects.requireNonNull(getClass().getResource("/tiles/target.png")));
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -95,6 +97,9 @@ public class TileManager {
                     worldY > gamePanel.player.worldY - gamePanel.player.screenY - gamePanel.tileSize &&
                     worldY < gamePanel.player.worldY + gamePanel.player.screenY + gamePanel.tileSize) {
                         graphics2D.drawImage(tiles.get(mapTiles[worldCol][worldRow]).image, screenX, screenY, gamePanel.tileSize, gamePanel.tileSize, null);
+                        if (tiles.get(mapTiles[worldCol][worldRow]).image2 != null) {
+                            graphics2D.drawImage(tiles.get(mapTiles[worldCol][worldRow]).image2, screenX, screenY, gamePanel.tileSize, gamePanel.tileSize, null);
+                        }
                 }
                 worldCol++;
             }

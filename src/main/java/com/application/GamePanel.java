@@ -1,5 +1,6 @@
 package com.application;
 
+import entity.NPC;
 import entity.Player;
 import tile.TileManager;
 
@@ -9,6 +10,7 @@ import javax.tools.Tool;
 import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Objects;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -34,6 +36,7 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyHandler = new KeyHandler();
     MouseHandler mouseHandler = new MouseHandler();
     public Player player = new Player(this, mouseHandler, keyHandler);
+    NPC npc1 = new NPC(this, 2 * tileSize, 2 * tileSize, "/npc/");
 
     public GamePanel() {
 
@@ -74,7 +77,7 @@ public class GamePanel extends JPanel implements Runnable {
             if (delta > 1) {
                 try {
                     update();
-                } catch (FileNotFoundException e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 repaint();
@@ -91,8 +94,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     }
 
-    public void update() throws FileNotFoundException {
+    public void update() throws IOException {
         player.update();
+        npc1.update();
     }
 
     public void paintComponent(Graphics graphics) {
@@ -102,6 +106,7 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D graphics2D = (Graphics2D)graphics;
 
         tileManager.draw(graphics2D);
+        npc1.draw(graphics2D);
         player.draw(graphics2D);
 
         Toolkit.getDefaultToolkit().sync();
