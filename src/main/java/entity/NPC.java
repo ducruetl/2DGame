@@ -45,6 +45,7 @@ public class NPC extends Entity {
 
     }
 
+    @Override
     public void draw(Graphics2D graphics2D) {
 
         if (worldX <= (gamePanel.player.worldX + gamePanel.screenWidth/2) && worldX >= (gamePanel.player.worldX - gamePanel.screenWidth/2) && worldY <= (gamePanel.player.worldY+ gamePanel.screenHeight/2) && worldY >= (gamePanel.player.worldY - gamePanel.screenHeight/2)) {

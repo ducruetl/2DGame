@@ -1,16 +1,14 @@
 package com.application;
 
+import entity.Entity;
 import entity.NPC;
 import entity.Player;
 import tile.TileManager;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.tools.Tool;
 import java.awt.*;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Objects;
+import java.util.ArrayList;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -36,7 +34,9 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyHandler = new KeyHandler();
     MouseHandler mouseHandler = new MouseHandler();
     public Player player = new Player(this, mouseHandler, keyHandler);
-    NPC npc1 = new NPC(this, 2 * tileSize, 2 * tileSize, "/npc/");
+    public ArrayList<NPC> npcList = new ArrayList<>();
+    public ArrayList<Entity> entityList;
+    //
 
     public GamePanel() {
 
@@ -46,6 +46,9 @@ public class GamePanel extends JPanel implements Runnable {
         this.addMouseListener(mouseHandler);
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
+        npcList.add(new NPC(this, 2 * tileSize, 2 * tileSize, "/npc/"));
+        entityList = new ArrayList<>(npcList);
+        entityList.add(player);
 
     }
 
@@ -96,7 +99,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() throws IOException {
         player.update();
-        npc1.update();
+        for (NPC npc : npcList) {
+            npc.update();
+        }
     }
 
     public void paintComponent(Graphics graphics) {
@@ -106,8 +111,13 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D graphics2D = (Graphics2D)graphics;
 
         tileManager.draw(graphics2D);
-        npc1.draw(graphics2D);
-        player.draw(graphics2D);
+        entityList.sort(null);
+        for (Entity entity : entityList) {
+            entity.draw(graphics2D);
+        }
+
+
+        graphics2D.dispose();
 
         Toolkit.getDefaultToolkit().sync();
     }

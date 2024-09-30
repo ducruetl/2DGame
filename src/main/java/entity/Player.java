@@ -144,6 +144,8 @@ public class Player extends Entity {
                 }
             }
 
+
+
             if (frameCount >= 10) {
                 if (frameNum == 1) {
                     frameNum = 2;
@@ -161,8 +163,39 @@ public class Player extends Entity {
             frameCount = 0;
         }
 
+        if (keyHandler.ePressed) {
+            switch (direction) {
+                case "up":
+                    for (NPC npc : gamePanel.npcList) {
+                        if (Math.abs(worldX - npc.worldX) <= 12 && worldY - npc.worldY <= gamePanel.tileSize && worldY - npc.worldY >= gamePanel.tileSize/2) {
+                            npc.direction = "down";
+                        }
+                    }
+                case "down":
+                    for (NPC npc : gamePanel.npcList) {
+                        if (Math.abs(worldX - npc.worldX) <= 12 && npc.worldY - worldY <= gamePanel.tileSize && npc.worldY - worldY >= gamePanel.tileSize/2) {
+                            npc.direction = "up";
+                        }
+                    }
+                case "left":
+                    for (NPC npc : gamePanel.npcList) {
+                        if (Math.abs(worldY - npc.worldY) <= 12 && worldX - npc.worldX <= gamePanel.tileSize && worldX - npc.worldX >= gamePanel.tileSize/2) {
+                            npc.direction = "right";
+                        }
+                    }
+                case "right":
+                    for (NPC npc : gamePanel.npcList) {
+                        if (Math.abs(worldY - npc.worldY) <= 12 && npc.worldX - worldX <= gamePanel.tileSize && npc.worldX - worldX >= gamePanel.tileSize/2) {
+                            npc.direction = "left";
+                        }
+                    }
+            }
+            keyHandler.ePressed = false;
+        }
+
     }
 
+    @Override
     public void draw(Graphics2D graphics2D) {
 
         BufferedImage image = null;
@@ -223,7 +256,7 @@ public class Player extends Entity {
         }
 
         graphics2D.drawImage(image, screenX, screenY, gamePanel.tileSize, gamePanel.tileSize, null);
-        graphics2D.dispose();
+
 
     }
 
